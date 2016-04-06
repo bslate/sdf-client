@@ -48,11 +48,8 @@ namespace OpenGLES20Example
 
 		uint texture;
 
-		Vector2[] vertices;
-		Vector2[] texcoords;
-
-		uint vertexBuffer;
-		uint texcoordBuffer;
+		List<Vector2> vertexList = new List<Vector2> ();
+		List<Vector2> texcoordList = new List<Vector2> ();
 
 		public GLViewController ()
 		{
@@ -82,7 +79,7 @@ namespace OpenGLES20Example
 
 		private bool createShaderProgram ()
 		{
-			program = new GLProgram ("Shader", "Shader");
+			program = new GLProgram ("SDFShader", "SDFShader");
 
 			program.AddAttribute ("a_pos");
 			program.AddAttribute ("a_texcoord");
@@ -188,17 +185,16 @@ namespace OpenGLES20Example
 
 		private void createText (string text, float fontSize)
 		{
-			var vertexList = new List<Vector2> ();
-			var texcoordList = new List<Vector2> ();
+			vertexList.Clear ();
+			texcoordList.Clear ();
 
 			var scale = fontSize / fontMetrics.fontSize;
 			var padding = fontMetrics.buffer;
 			var textWidth = measureTextWidth (text, fontSize);
 
-			var cursorX = (float) (viewWidth / 2) - textWidth;
-			var cursorY = (float) (viewHeight / 2);
+			var cursorX = (float) -(textWidth / 2);
+			var cursorY = (float) 0;
 
-			/*
 			for (var i = 0; i < text.Length; ++i) {
 				var ch = (text [i]).ToString ();
 				var glyph = fontMetrics.chars[ch];
@@ -221,17 +217,18 @@ namespace OpenGLES20Example
 				
 				width += padding * 2;
 				height += padding * 2;
+				left -= padding;
 
 				var cx = cursorX;
 				var cy = cursorY;
 
-				vertexList.Add (new Vector2 (cx + scale * (left - padding), cy - scale * (top)));
-				vertexList.Add (new Vector2 (cx + scale * (left - padding + width), cy - scale * (top)));
-				vertexList.Add (new Vector2 (cx + scale * (left - padding), cy - scale * (height - top)));
+				vertexList.Add (new Vector2 (cx + scale * (left), cy - scale * (top)));
+				vertexList.Add (new Vector2 (cx + scale * (left + width), cy - scale * (top)));
+				vertexList.Add (new Vector2 (cx + scale * (left), cy - scale * (height - top)));
 
-				vertexList.Add (new Vector2 (cx + scale * (left - padding + width), cy - scale * (top)));
-				vertexList.Add (new Vector2 (cx + scale * (left - padding), cy - scale * (height - top)));
-				vertexList.Add (new Vector2 (cx + scale * (left - padding + width), cy - scale * (height - top)));
+				vertexList.Add (new Vector2 (cx + scale * (left + width), cy - scale * (top)));
+				vertexList.Add (new Vector2 (cx + scale * (left), cy - scale * (height - top)));
+				vertexList.Add (new Vector2 (cx + scale * (left + width), cy - scale * (height - top)));
 
 				texcoordList.Add (new Vector2 (cx, cy));
 				texcoordList.Add (new Vector2 (cx + width, cy));
@@ -243,18 +240,26 @@ namespace OpenGLES20Example
 
 				cursorX += advance;
 			}
-			*/
 
-			vertices = vertexList.ToArray ();
-			texcoords = texcoordList.ToArray ();
+//			vertexList.Add (new Vector2 (0, 0));
+//			vertexList.Add (new Vector2 (50, 0));
+//			vertexList.Add (new Vector2 (0, 50));
+//
+//			vertexList.Add (new Vector2 (50, 0));
+//			vertexList.Add (new Vector2 (0, 50));
+//			vertexList.Add (new Vector2 (50, 50));
+//
+//			texcoordList.Add (new Vector2 (0, 0));
+//			texcoordList.Add (new Vector2 (50, 0));
+//			texcoordList.Add (new Vector2 (0, 50));
+//
+//			texcoordList.Add (new Vector2 (50, 0));
+//			texcoordList.Add (new Vector2 (0, 50));
+//			texcoordList.Add (new Vector2 (50, 50));
 
-			GL.GenBuffers (1, out vertexBuffer);
-			GL.BindBuffer (BufferTarget.ArrayBuffer, vertexBuffer);
-			GL.BufferData<Vector2> (BufferTarget.ArrayBuffer, new IntPtr(vertices.Length * Vector2.SizeInBytes), vertices, BufferUsage.StaticDraw);
-
-			GL.GenBuffers (1, out texcoordBuffer);
-			GL.BindBuffer (BufferTarget.ArrayBuffer, texcoordBuffer);
-			GL.BufferData<Vector2> (BufferTarget.ArrayBuffer, new IntPtr(texcoords.Length * Vector2.SizeInBytes), texcoords, BufferUsage.StaticDraw);
+			for (var i = 0; i < vertexList.Count; ++i) {
+				Console.WriteLine ("Vertex: {0}, {1}", vertexList [i].X, vertexList[i].Y);
+			}
 		}
 		
 		private void drawText()
@@ -265,16 +270,16 @@ namespace OpenGLES20Example
 			GL.BindTexture (TextureTarget.Texture2D, texture);
 			GL.Uniform1 (textureUniform, (int) 0);
 
-			GL.Uniform1 (debugUniform, (float) 0);
+			GL.Uniform1 (debugUniform, (float) 1);
 			GL.Uniform1 (gammaUniform, (float) (gamma * 1.4142 / fontSize));
 
-			GL.BindBuffer (BufferTarget.ArrayBuffer, vertexBuffer);
+			var vertices = vertexList.ToArray ();
 			GL.EnableVertexAttribArray (posAttribute);
 			GL.VertexAttribPointer (posAttribute, 2, VertexAttribPointerType.Float, false, 0, vertices);
 
-			GL.BindBuffer (BufferTarget.ArrayBuffer, texcoordBuffer);
+			var texcoords = texcoordList.ToArray ();
 			GL.EnableVertexAttribArray (texcoordAttribute);
-			GL.VertexAttribPointer (texcoordAttribute, 2, VertexAttribPointerType.Float, false, 2, texcoords);
+			GL.VertexAttribPointer (texcoordAttribute, 2, VertexAttribPointerType.Float, false, 0, texcoords);
 
 			var fromBuffer = (float) (48 / 256);
 			GL.Uniform4 (colorUniform, 1, 1, 1, 1);
