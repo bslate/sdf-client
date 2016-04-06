@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Resources\gillsans-ttf.sdf\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -103,13 +104,16 @@
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Shader.vsh" />
-    <BundleResource Include="Resources\DieTexture.png" />
     <BundleResource Include="Shader.fsh" />
     <BundleResource Include="Resources\arial-ttf.sdf\metrics.json" />
     <BundleResource Include="Resources\arial-ttf.sdf\texture0.png" />
-    <BundleResource Include="Resources\arial-ttf.sdf\texture1.png" />
     <BundleResource Include="SDFShader.fsh" />
     <BundleResource Include="SDFShader.vsh" />
+    <BundleResource Include="Resources\opensans-ttf.sdf\metrics.json" />
+    <BundleResource Include="Resources\opensans-ttf.sdf\texture0.png" />
+    <BundleResource Include="Resources\debug.png" />
+    <BundleResource Include="Resources\gillsans-ttf.sdf\metrics.json" />
+    <BundleResource Include="Resources\gillsans-ttf.sdf\texture0.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

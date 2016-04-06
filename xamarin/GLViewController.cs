@@ -21,7 +21,7 @@ namespace OpenGLES20Example
 
 	public class GLViewController : UIViewController
 	{
-		string sampleText = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUu";
+		string sampleText = "A";
 		float fontSize = 26.0f;
 		float gamma = 1.0f;
 
@@ -65,9 +65,11 @@ namespace OpenGLES20Example
 			if (!createShaderProgram ())
 				throw new Exception ("Failed to load shader program.");
 
+			program.Use ();
+
 			var SDFFile = new {
-				metrics = "arial-ttf.sdf/metrics.json",
-				texture0 = "arial-ttf.sdf/texture0.png"
+				metrics = "gillsans-ttf.sdf/metrics.json",
+				texture0 = "gillsans-ttf.sdf/texture0.png"
 			};
 
 			if (!createFontMetrics (SDFFile.metrics))
@@ -79,7 +81,7 @@ namespace OpenGLES20Example
 
 		private bool createShaderProgram ()
 		{
-			program = new GLProgram ("SDFShader", "SDFShader");
+			program = new GLProgram ("Shader", "Shader");
 
 			program.AddAttribute ("a_pos");
 			program.AddAttribute ("a_texcoord");
@@ -122,12 +124,14 @@ namespace OpenGLES20Example
 		private bool createFontTexture (string file)
 		{
 			GL.Enable (EnableCap.Blend);
-			GL.BlendFuncSeparate (
-				BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
-				BlendingFactorSrc.One, BlendingFactorDest.One);
-
 			GL.Enable (EnableCap.Texture2D);
 			GL.GenTextures (1, out texture);
+			GL.BindTexture (TextureTarget.Texture2D, texture);
+
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear);
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear);
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) TextureWrapMode.ClampToEdge);
+			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) TextureWrapMode.ClampToEdge);
 
 			string extension = Path.GetExtension (file);
 			string fileName = Path.GetFileNameWithoutExtension (file);
@@ -142,10 +146,12 @@ namespace OpenGLES20Example
 			nint width = image.CGImage.Width;
 			nint height = image.CGImage.Height;
 
-			CGColorSpace colorSpace = CGColorSpace.CreateGenericGray ();
-			byte [] imageData = new byte[height * width];
-			CGContext context = new CGBitmapContext  (imageData, width, height, 8, 1 * width, colorSpace,
-				CGBitmapFlags.None);
+			GL.Uniform2 (texsizeUniform, (float) width, (float) height);
+
+			CGColorSpace colorSpace = CGColorSpace.CreateGenericRgb ();
+			byte [] imageData = new byte[height * width * 4];
+			CGContext context = new CGBitmapContext  (imageData, width, height, 8, 4 * width, colorSpace,
+				CGBitmapFlags.PremultipliedLast | CGBitmapFlags.ByteOrder32Big);
 
 			context.TranslateCTM (0, height);
 			context.ScaleCTM (1, -1);
@@ -153,16 +159,9 @@ namespace OpenGLES20Example
 			context.ClearRect (new CGRect (0, 0, width, height));
 			context.DrawImage (new CGRect (0, 0, width, height), image.CGImage);
 
-			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, (int) width, (int) height, 0, PixelFormat.Luminance, PixelType.UnsignedByte, imageData);
+			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, (int) width, (int) height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, imageData);
 
 			context.Dispose ();
-
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear);
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear);
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int) TextureWrapMode.ClampToEdge);
-			GL.TexParameter (TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int) TextureWrapMode.ClampToEdge);
-
-			GL.Uniform2 (texsizeUniform, width, height);
 
 			return true;
 		}
@@ -188,84 +187,84 @@ namespace OpenGLES20Example
 			vertexList.Clear ();
 			texcoordList.Clear ();
 
-			var scale = fontSize / fontMetrics.fontSize;
-			var padding = fontMetrics.buffer;
-			var textWidth = measureTextWidth (text, fontSize);
-
-			var cursorX = (float) -(textWidth / 2);
-			var cursorY = (float) 0;
-
-			for (var i = 0; i < text.Length; ++i) {
-				var ch = (text [i]).ToString ();
-				var glyph = fontMetrics.chars[ch];
-				if (null == glyph)
-					continue;
-				
-				if (glyph.Count < 7)
-					continue;
-				
-				var width = glyph [0];
-				var height = glyph [1];
-				var left = glyph [2];
-				var top = glyph [3];
-				var advance = glyph [4];
-				var x = glyph [5];
-				var y = glyph [6];
-
-				if (width <= 0 || height <= 0)
-					continue;
-				
-				width += padding * 2;
-				height += padding * 2;
-				left -= padding;
-
-				var cx = cursorX;
-				var cy = cursorY;
-
-				vertexList.Add (new Vector2 (cx + scale * (left), cy - scale * (top)));
-				vertexList.Add (new Vector2 (cx + scale * (left + width), cy - scale * (top)));
-				vertexList.Add (new Vector2 (cx + scale * (left), cy - scale * (height - top)));
-
-				vertexList.Add (new Vector2 (cx + scale * (left + width), cy - scale * (top)));
-				vertexList.Add (new Vector2 (cx + scale * (left), cy - scale * (height - top)));
-				vertexList.Add (new Vector2 (cx + scale * (left + width), cy - scale * (height - top)));
-
-				texcoordList.Add (new Vector2 (cx, cy));
-				texcoordList.Add (new Vector2 (cx + width, cy));
-				texcoordList.Add (new Vector2 (cx, cy + height));
-
-				texcoordList.Add (new Vector2 (cx + width, cy));
-				texcoordList.Add (new Vector2 (cx, cy + height));
-				texcoordList.Add (new Vector2 (cx + width, cy + height));
-
-				cursorX += advance;
-			}
-
-//			vertexList.Add (new Vector2 (0, 0));
-//			vertexList.Add (new Vector2 (50, 0));
-//			vertexList.Add (new Vector2 (0, 50));
+//			var scale = 1;
+//			var border = fontMetrics.buffer;
+//			var textWidth = measureTextWidth (text, fontSize);
 //
-//			vertexList.Add (new Vector2 (50, 0));
-//			vertexList.Add (new Vector2 (0, 50));
-//			vertexList.Add (new Vector2 (50, 50));
+//			var cursorX = (float) -(textWidth / 2);
+//			var cursorY = (float) 0;
 //
-//			texcoordList.Add (new Vector2 (0, 0));
-//			texcoordList.Add (new Vector2 (50, 0));
-//			texcoordList.Add (new Vector2 (0, 50));
+//			for (var i = 0; i < text.Length; ++i) {
+//				var ch = (text [i]).ToString ();
+//				var glyph = fontMetrics.chars[ch];
+//				if (null == glyph)
+//					continue;
+//				
+//				if (glyph.Count < 7)
+//					continue;
+//				
+//				var width = glyph [0];
+//				var height = glyph [1];
+//				var left = glyph [2];
+//				var top = glyph [3];
+//				var advance = glyph [4];
+//				var x = glyph [5];
+//				var y = glyph [6];
 //
-//			texcoordList.Add (new Vector2 (50, 0));
-//			texcoordList.Add (new Vector2 (0, 50));
-//			texcoordList.Add (new Vector2 (50, 50));
+//				if (width <= 0 || height <= 0)
+//					continue;
+//
+//				var cx = cursorX;
+//				var cy = cursorY;
+//
+//				vertexList.Add (new Vector2 (cx, cy));
+//				vertexList.Add (new Vector2 (cx + width, cy));
+//				vertexList.Add (new Vector2 (cx, cy + height));
+//
+//				vertexList.Add (new Vector2 (cx + width, cy));
+//				vertexList.Add (new Vector2 (cx, cy + height));
+//				vertexList.Add (new Vector2 (cx + width, cy + height));
+//
+//				texcoordList.Add (new Vector2 (x, y));
+//				texcoordList.Add (new Vector2 (x + width, y));
+//				texcoordList.Add (new Vector2 (x, y + height));
+//
+//				texcoordList.Add (new Vector2 (x + width, y));
+//				texcoordList.Add (new Vector2 (x, y + height));
+//				texcoordList.Add (new Vector2 (x + width, y + height));
+//
+//				cursorX += advance;
+//			}
 
-			for (var i = 0; i < vertexList.Count; ++i) {
-				Console.WriteLine ("Vertex: {0}, {1}", vertexList [i].X, vertexList[i].Y);
-			}
+			var border = 3;
+			var texHeight = 284;
+			var texWidth = 304;
+
+			// DEBUG
+			var vw = 16 + border * 2;
+			var vh = 16 + border * 2;
+			var tx = 73;
+			var ty = texHeight - (82 + vh);
+
+			vertexList.Add (new Vector2 (0, 0));
+			vertexList.Add (new Vector2 (vw, 0));
+			vertexList.Add (new Vector2 (0, vh));
+
+			vertexList.Add (new Vector2 (vw, 0));
+			vertexList.Add (new Vector2 (0, vh));
+			vertexList.Add (new Vector2 (vw, vh));
+
+			texcoordList.Add (new Vector2 (tx, ty));
+			texcoordList.Add (new Vector2 (tx + vw, ty));
+			texcoordList.Add (new Vector2 (tx, ty + vh));
+
+			texcoordList.Add (new Vector2 (tx + vw, ty));
+			texcoordList.Add (new Vector2 (tx, ty + vh));
+			texcoordList.Add (new Vector2 (tx + vw, ty + vh));
 		}
 		
 		private void drawText()
 		{
-			program.Use ();
-
 			GL.ActiveTexture (TextureUnit.Texture0);
 			GL.BindTexture (TextureTarget.Texture2D, texture);
 			GL.Uniform1 (textureUniform, (int) 0);
@@ -274,21 +273,24 @@ namespace OpenGLES20Example
 			GL.Uniform1 (gammaUniform, (float) (gamma * 1.4142 / fontSize));
 
 			var vertices = vertexList.ToArray ();
-			GL.EnableVertexAttribArray (posAttribute);
 			GL.VertexAttribPointer (posAttribute, 2, VertexAttribPointerType.Float, false, 0, vertices);
+			GL.EnableVertexAttribArray (posAttribute);
 
 			var texcoords = texcoordList.ToArray ();
-			GL.EnableVertexAttribArray (texcoordAttribute);
 			GL.VertexAttribPointer (texcoordAttribute, 2, VertexAttribPointerType.Float, false, 0, texcoords);
+			GL.EnableVertexAttribArray (texcoordAttribute);
 
-			var fromBuffer = (float) (48 / 256);
-			GL.Uniform4 (colorUniform, 1, 1, 1, 1);
-			GL.Uniform1 (bufferUniform, fromBuffer);
-			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
+//			var fromBuffer = (float) (48 / 256);
+//			GL.Uniform4 (colorUniform, 1, 1, 1, 1);
+//			GL.Uniform1 (bufferUniform, fromBuffer);
+//			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
+//
+//			var toBuffer = (float) (192 / 256);
+//			GL.Uniform4 (colorUniform, 0, 0, 0, 1);
+//			GL.Uniform1 (bufferUniform, toBuffer);
+//			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
 
-			var toBuffer = (float) (192 / 256);
-			GL.Uniform4 (colorUniform, 0, 0, 0, 1);
-			GL.Uniform1 (bufferUniform, toBuffer);
+			// DEBUG
 			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
 		}
 
@@ -296,6 +298,7 @@ namespace OpenGLES20Example
 		{
 			GL.ClearColor (0.9f, 0.9f, 0.9f, 1f);
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			GL.BlendFunc (BlendingFactorSrc.One, BlendingFactorDest.Zero);
 
 			createText (sampleText, fontSize);
 
