@@ -108,6 +108,8 @@
     <BundleResource Include="Resources\arial-ttf.sdf\metrics.json" />
     <BundleResource Include="Resources\arial-ttf.sdf\texture0.png" />
     <BundleResource Include="Resources\arial-ttf.sdf\texture1.png" />
+    <BundleResource Include="SDFShader.fsh" />
+    <BundleResource Include="SDFShader.vsh" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

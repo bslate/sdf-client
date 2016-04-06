@@ -108,9 +108,6 @@ namespace OpenGLES20Example
 			gammaUniform = program.GetUniformIndex ("u_gamma");
 			debugUniform = program.GetUniformIndex ("u_debug");
 
-			GL.EnableVertexAttribArray (posAttribute);
-			GL.EnableVertexAttribArray (texcoordAttribute);
-
 			return true;
 		}
 
@@ -201,6 +198,7 @@ namespace OpenGLES20Example
 			var cursorX = (float) (viewWidth / 2) - textWidth;
 			var cursorY = (float) (viewHeight / 2);
 
+			/*
 			for (var i = 0; i < text.Length; ++i) {
 				var ch = (text [i]).ToString ();
 				var glyph = fontMetrics.chars[ch];
@@ -245,17 +243,18 @@ namespace OpenGLES20Example
 
 				cursorX += advance;
 			}
+			*/
 
 			vertices = vertexList.ToArray ();
 			texcoords = texcoordList.ToArray ();
 
 			GL.GenBuffers (1, out vertexBuffer);
 			GL.BindBuffer (BufferTarget.ArrayBuffer, vertexBuffer);
-			GL.BufferData (BufferTarget.ArrayBuffer, (IntPtr) (vertices.Length * Vector2.SizeInBytes), vertices, BufferUsage.StaticDraw);
+			GL.BufferData<Vector2> (BufferTarget.ArrayBuffer, new IntPtr(vertices.Length * Vector2.SizeInBytes), vertices, BufferUsage.StaticDraw);
 
 			GL.GenBuffers (1, out texcoordBuffer);
 			GL.BindBuffer (BufferTarget.ArrayBuffer, texcoordBuffer);
-			GL.BufferData (BufferTarget.ArrayBuffer, (IntPtr) (texcoords.Length * Vector2.SizeInBytes), texcoords, BufferUsage.StaticDraw);
+			GL.BufferData<Vector2> (BufferTarget.ArrayBuffer, new IntPtr(texcoords.Length * Vector2.SizeInBytes), texcoords, BufferUsage.StaticDraw);
 		}
 		
 		private void drawText()
@@ -270,12 +269,12 @@ namespace OpenGLES20Example
 			GL.Uniform1 (gammaUniform, (float) (gamma * 1.4142 / fontSize));
 
 			GL.BindBuffer (BufferTarget.ArrayBuffer, vertexBuffer);
-			GL.VertexAttribPointer (posAttribute, 2, VertexAttribPointerType.Float, false, 0, vertices);
 			GL.EnableVertexAttribArray (posAttribute);
+			GL.VertexAttribPointer (posAttribute, 2, VertexAttribPointerType.Float, false, 0, vertices);
 
 			GL.BindBuffer (BufferTarget.ArrayBuffer, texcoordBuffer);
-			GL.VertexAttribPointer (texcoordAttribute, 2, VertexAttribPointerType.Float, false, 0, texcoords);
 			GL.EnableVertexAttribArray (texcoordAttribute);
+			GL.VertexAttribPointer (texcoordAttribute, 2, VertexAttribPointerType.Float, false, 2, texcoords);
 
 			var fromBuffer = (float) (48 / 256);
 			GL.Uniform4 (colorUniform, 1, 1, 1, 1);
