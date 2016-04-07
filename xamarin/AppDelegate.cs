@@ -16,7 +16,6 @@ namespace OpenGLES20Example
 			window = new UIWindow ();
 
 			GLViewController root = new GLViewController ();
-			root.View.Frame = window.Frame;
 
 			window.RootViewController = root;
 

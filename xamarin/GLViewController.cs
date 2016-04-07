@@ -25,8 +25,11 @@ namespace OpenGLES20Example
 		string sdfFile = "verdana-ttf.sdf";
 
 		string shader = "SDFShader";
+
 		float fontSize = 18.0f;
 		float gamma = 1.0f;
+		float border = 0.0f;
+		float angle = 0.0f;
 
 		Matrix4 modelViewMatrix;
 		Matrix4 projectionMatrix;
@@ -56,25 +59,69 @@ namespace OpenGLES20Example
 		List<Vector2> vertexList = new List<Vector2> ();
 		List<Vector2> texcoordList = new List<Vector2> ();
 
+		FontSettingsViewController fontSettingsViewController;
+
 		public GLViewController ()
 		{
 		}
 
-		public void Setup ()
+		public override void ViewWillLayoutSubviews ()
 		{
+			base.ViewWillLayoutSubviews ();
+
 			viewWidth = (float) View.Frame.Size.Width;
 			viewHeight = (float) View.Frame.Size.Height;
 
 			projectionMatrix = Matrix4.CreateOrthographic ((float) viewWidth, (float) viewHeight, 0, -1);
+		}
 
+		public override void ViewDidLoad ()
+		{
+			base.ViewDidLoad ();
+
+			setupGL ();
+
+			setupFontSettingsViewController ();
+		}
+
+		private void setupFontSettingsViewController () {
+			fontSettingsViewController = new FontSettingsViewController ();
+			this.AddChildViewController (fontSettingsViewController);
+			fontSettingsViewController.DidMoveToParentViewController (this);
+			fontSettingsViewController.View.Frame = this.View.Frame;
+			this.View.AddSubview (fontSettingsViewController.View);
+
+			fontSettingsViewController.SizeChanged = (float value) => {
+				this.fontSize = value * 24.0f;
+				this.View.SetNeedsLayout ();
+			};
+
+			fontSettingsViewController.BorderChanged = (float value) => {
+				this.border = value;
+				this.View.SetNeedsLayout ();
+			};
+
+			fontSettingsViewController.AngleChanged = (float value) => {
+				this.angle = (float) (value * Math.PI * 2);
+				this.View.SetNeedsLayout ();
+			};
+
+			fontSettingsViewController.GammaChanged = (float value) => {
+				this.gamma = value;
+				this.View.SetNeedsLayout ();
+			};
+		}
+
+		private void setupGL ()
+		{
 			if (!createShaderProgram ())
 				throw new Exception ("Failed to load shader program.");
 
 			program.Use ();
 
 			var SDFFileContents = new {
-				metrics = Path.Combine(sdfFile, "metrics.json"),
-				texture0 = Path.Combine(sdfFile, "texture0.png")
+				metrics = Path.Combine (sdfFile, "metrics.json"),
+				texture0 = Path.Combine (sdfFile, "texture0.png")
 			};
 
 			if (!createFontMetrics (SDFFileContents.metrics))
@@ -294,8 +341,8 @@ namespace OpenGLES20Example
 
 			createText (sampleText, fontSize);
 
-			modelViewMatrix = Matrix4.Identity;
-			modelViewProjectionMatrix = Matrix4.Mult (projectionMatrix, modelViewMatrix);
+			modelViewMatrix = Matrix4.CreateRotationZ (angle);
+			modelViewProjectionMatrix = Matrix4.Mult (modelViewMatrix, projectionMatrix);
 			GL.UniformMatrix4 (matrixUniform, false, ref modelViewProjectionMatrix);
 
 			drawText ();

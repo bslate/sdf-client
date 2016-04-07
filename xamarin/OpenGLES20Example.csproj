@@ -102,6 +102,10 @@
     <Compile Include="GLView.cs" />
     <Compile Include="GLViewController.cs" />
     <Compile Include="GLProgram.cs" />
+    <Compile Include="FontSettingsViewController.cs" />
+    <Compile Include="FontSettingsViewController.designer.cs">
+      <DependentUpon>FontSettingsViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Shader.vsh" />
@@ -120,6 +124,6 @@
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.xib" />
-    <InterfaceDefinition Include="FontSettings.xib" />
+    <InterfaceDefinition Include="FontSettingsViewController.xib" />
   </ItemGroup>
 </Project>

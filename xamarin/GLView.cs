@@ -43,7 +43,7 @@ namespace OpenGLES20Example
 			return new Class (typeof (CAEAGLLayer));
 		}
 
-		public GLView () : base ()
+		public GLView () : base (UIScreen.MainScreen.Bounds)
 		{
 			CAEAGLLayer eaglLayer = (CAEAGLLayer)Layer;
 			eaglLayer.Opaque = true;
@@ -112,8 +112,6 @@ namespace OpenGLES20Example
 				                                  GL.CheckFramebufferStatus (FramebufferTarget.Framebuffer).ToString ()));
 
 			GL.Viewport (0, 0, backingWidth, backingHeight);
-
-			Controller.Setup ();
 
 			drawView ();
 		}
