@@ -21,9 +21,11 @@ namespace OpenGLES20Example
 
 	public class GLViewController : UIViewController
 	{
+		string sampleText = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUu";
+		string sdfFile = "verdana-ttf.sdf";
+
 		string shader = "SDFShader";
-		string sampleText = "AaQq";
-		float fontSize = 26.0f;
+		float fontSize = 18.0f;
 		float gamma = 1.0f;
 
 		Matrix4 modelViewMatrix;
@@ -70,15 +72,15 @@ namespace OpenGLES20Example
 
 			program.Use ();
 
-			var SDFFile = new {
-				metrics = "verdana-ttf.sdf/metrics.json",
-				texture0 = "verdana-ttf.sdf/texture0.png"
+			var SDFFileContents = new {
+				metrics = Path.Combine(sdfFile, "metrics.json"),
+				texture0 = Path.Combine(sdfFile, "texture0.png")
 			};
 
-			if (!createFontMetrics (SDFFile.metrics))
+			if (!createFontMetrics (SDFFileContents.metrics))
 				throw new Exception ("Failed to load SDF metrics.json file.");
 
-			if (!createFontTexture (SDFFile.texture0))
+			if (!createFontTexture (SDFFileContents.texture0))
 				throw new Exception ("Failed to load SDF texture0.png file.");
 		}
 
@@ -151,10 +153,10 @@ namespace OpenGLES20Example
 
 			GL.Uniform2 (texsizeUniform, (float) textureWidth, (float) textureHeight);
 
-			CGColorSpace colorSpace = CGColorSpace.CreateGenericRgb ();
-			byte [] imageData = new byte[textureWidth * textureHeight * 4];
-			CGContext context = new CGBitmapContext  (imageData, textureWidth, textureHeight, 8, 4 * textureWidth, colorSpace,
-				CGBitmapFlags.PremultipliedLast | CGBitmapFlags.ByteOrder32Big);
+			CGColorSpace colorSpace = CGColorSpace.CreateDeviceGray ();
+			byte [] imageData = new byte[textureWidth * textureHeight * 1];
+			CGContext context = new CGBitmapContext  (imageData, textureWidth, textureHeight, 8, 1 * textureWidth, colorSpace,
+				CGImageAlphaInfo.None);
 
 			context.TranslateCTM (0, textureHeight);
 			context.ScaleCTM (1, -1);
@@ -162,7 +164,9 @@ namespace OpenGLES20Example
 			context.ClearRect (new CGRect (0, 0, textureWidth, textureHeight));
 			context.DrawImage (new CGRect (0, 0, textureWidth, textureHeight), image.CGImage);
 
-			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, (int) textureWidth, (int) textureHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, imageData);
+			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+			GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, (int) textureWidth, (int) textureHeight, 0, PixelFormat.Luminance, PixelType.UnsignedByte, imageData);
 
 			context.Dispose ();
 
@@ -246,30 +250,8 @@ namespace OpenGLES20Example
 				texcoordList.Add (new Vector2 (tx, ty + height));
 				texcoordList.Add (new Vector2 (tx + width, ty + height));
 
-				cursorX += advance;
+				cursorX += s * advance;
 			}
-				
-			// DEBUG
-//			var vw = 16 + border * 2;
-//			var vh = 16 + border * 2;
-//			var tx = 73;
-//			var ty = texHeight - (82 + vh);
-//
-//			vertexList.Add (new Vector2 (0, 0));
-//			vertexList.Add (new Vector2 (vw, 0));
-//			vertexList.Add (new Vector2 (0, vh));
-//
-//			vertexList.Add (new Vector2 (vw, 0));
-//			vertexList.Add (new Vector2 (0, vh));
-//			vertexList.Add (new Vector2 (vw, vh));
-//
-//			texcoordList.Add (new Vector2 (tx, ty));
-//			texcoordList.Add (new Vector2 (tx + vw, ty));
-//			texcoordList.Add (new Vector2 (tx, ty + vh));
-//
-//			texcoordList.Add (new Vector2 (tx + vw, ty));
-//			texcoordList.Add (new Vector2 (tx, ty + vh));
-//			texcoordList.Add (new Vector2 (tx + vw, ty + vh));
 		}
 		
 		private void drawText()
@@ -280,8 +262,7 @@ namespace OpenGLES20Example
 			GL.BindTexture (TextureTarget.Texture2D, texture);
 			GL.Uniform1 (textureUniform, (int) 0);
 
-			GL.Uniform1 (debugUniform, (float) 1);
-			GL.Uniform1 (gammaUniform, (float) (gamma * 1.4142 / fontSize));
+			GL.Uniform1 (debugUniform, (float) 0.0f);
 
 			var vertices = vertexList.ToArray ();
 			GL.VertexAttribPointer (posAttribute, 2, VertexAttribPointerType.Float, false, 0, vertices);
@@ -291,17 +272,16 @@ namespace OpenGLES20Example
 			GL.VertexAttribPointer (texcoordAttribute, 2, VertexAttribPointerType.Float, false, 0, texcoords);
 			GL.EnableVertexAttribArray (texcoordAttribute);
 
-//			var fromBuffer = (float) (48 / 256);
-//			GL.Uniform4 (colorUniform, 1, 1, 1, 1);
-//			GL.Uniform1 (bufferUniform, fromBuffer);
-//			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
-//
-//			var toBuffer = (float) (192 / 256);
-//			GL.Uniform4 (colorUniform, 0, 0, 0, 1);
-//			GL.Uniform1 (bufferUniform, toBuffer);
-//			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
+			GL.Uniform1 (gammaUniform, (float) (gamma * 1.4142f / fontSize));
 
-			// DEBUG
+			var fromBuffer = (float) (48.0f / 256);
+			GL.Uniform4 (colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
+			GL.Uniform1 (bufferUniform, fromBuffer);
+			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
+
+			var toBuffer = (float) (192.0f / 256);
+			GL.Uniform4 (colorUniform, 0.0f, 0.0f, 0.0f, 1.0f);
+			GL.Uniform1 (bufferUniform, toBuffer);
 			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
 		}
 
@@ -309,7 +289,8 @@ namespace OpenGLES20Example
 		{
 			GL.ClearColor (0.9f, 0.9f, 0.9f, 1f);
 			GL.Clear (ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			GL.BlendFunc (BlendingFactorSrc.One, BlendingFactorDest.Zero);
+			GL.BlendFuncSeparate (BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
+				BlendingFactorSrc.One, BlendingFactorDest.One);
 
 			createText (sampleText, fontSize);
 
