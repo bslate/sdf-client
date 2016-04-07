@@ -305,7 +305,6 @@ namespace OpenGLES20Example
 		{
 			GLView view = new GLView ();
 			view.Controller = this;
-
 			View = view;
 		}
 	}

@@ -13,11 +13,10 @@ namespace OpenGLES20Example
 
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
-			window = new UIWindow (UIScreen.MainScreen.Bounds);
+			window = new UIWindow ();
 
 			GLViewController root = new GLViewController ();
 			root.View.Frame = window.Frame;
-			root.View.ContentScaleFactor = window.ContentScaleFactor;
 
 			window.RootViewController = root;
 

@@ -47,6 +47,7 @@ namespace OpenGLES20Example
 		{
 			CAEAGLLayer eaglLayer = (CAEAGLLayer)Layer;
 			eaglLayer.Opaque = true;
+			eaglLayer.ContentsScale = UIScreen.MainScreen.Scale;
 
 			context = new EAGLContext (EAGLRenderingAPI.OpenGLES2);
 
