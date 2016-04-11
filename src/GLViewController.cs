@@ -111,7 +111,6 @@ namespace SDFExample
 
 			fontSettingsViewController.SizeChanged = (float value) => {
 				this.fontSize = fromSliderValue (value, minFontSize, maxFontSize);
-				Console.WriteLine("fontSize {0}", fontSize);
 				this.View.SetNeedsLayout ();
 			};
 
