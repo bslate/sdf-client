@@ -83,6 +83,8 @@ namespace OpenGLES20Example
 			viewWidth = (float) View.Frame.Size.Width;
 			viewHeight = (float) View.Frame.Size.Height;
 
+			fontSettingsViewController.View.Frame = View.Frame;
+
 			projectionMatrix = Matrix4.CreateOrthographic ((float) viewWidth, (float) viewHeight, 0, -1);
 		}
 
