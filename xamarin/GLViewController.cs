@@ -26,10 +26,21 @@ namespace OpenGLES20Example
 
 		string shader = "SDFShader";
 
-		float fontSize = 18.0f;
-		float gamma = 1.0f;
-		float border = 0.0f;
-		float angle = 0.0f;
+		float minFontSize = 12;
+		float maxFontSize = 72;
+		float fontSize = 22;
+
+		float minGamma = 0;
+		float maxGamma = 3;
+		float gamma = 1;
+
+		float minBorder = 0.2f;
+		float maxBorder = 1.0f;
+		float border = 0.75f;
+
+		float minAngle = 0;
+		float maxAngle = (float) (Math.PI * 2);
+		float angle = 0;
 
 		Matrix4 modelViewMatrix;
 		Matrix4 projectionMatrix;
@@ -91,25 +102,46 @@ namespace OpenGLES20Example
 			fontSettingsViewController.View.Frame = this.View.Frame;
 			this.View.AddSubview (fontSettingsViewController.View);
 
+			fontSettingsViewController.Size = toSliderValue(fontSize, minFontSize, maxFontSize);
+			fontSettingsViewController.Border = toSliderValue(border, minBorder, maxBorder);
+			fontSettingsViewController.Angle = toSliderValue(angle, minAngle, maxAngle);
+			fontSettingsViewController.Gamma = toSliderValue(gamma, minGamma, maxGamma);
+
 			fontSettingsViewController.SizeChanged = (float value) => {
-				this.fontSize = value * 24.0f;
+				this.fontSize = fromSliderValue (value, minFontSize, maxFontSize);
+				Console.WriteLine("fontSize {0}", fontSize);
 				this.View.SetNeedsLayout ();
 			};
 
 			fontSettingsViewController.BorderChanged = (float value) => {
-				this.border = value;
+				this.border = fromSliderValue (value, minBorder, maxBorder);
 				this.View.SetNeedsLayout ();
 			};
 
 			fontSettingsViewController.AngleChanged = (float value) => {
-				this.angle = (float) (value * Math.PI * 2);
+				this.angle = fromSliderValue (value, minAngle, maxAngle);
 				this.View.SetNeedsLayout ();
 			};
 
 			fontSettingsViewController.GammaChanged = (float value) => {
-				this.gamma = value;
+				this.gamma = fromSliderValue (value, minGamma, maxGamma);
 				this.View.SetNeedsLayout ();
 			};
+		}
+
+
+		private float fromSliderValue(float value, float min, float max)
+		{
+			if (max == min)
+				return 0;
+			return ((value) * (max - min)) + min;
+		}
+
+		private float toSliderValue(float value, float min, float max)
+		{
+			if (max == min)
+				return min;
+			return ((value - min) / (max - min));
 		}
 
 		private void setupGL ()
@@ -241,8 +273,8 @@ namespace OpenGLES20Example
 			vertexList.Clear ();
 			texcoordList.Clear ();
 
+			var buffer = fontMetrics.buffer;
 			var scale = fontSize / fontMetrics.fontSize;
-			var border = fontMetrics.buffer;
 			var textWidth = measureTextWidth (text, fontSize);
 
 			var cursorX = (float) -(textWidth / 2);
@@ -268,11 +300,11 @@ namespace OpenGLES20Example
 				if (width <= 0 || height <= 0)
 					continue;
 
-				width += border * 2;
-				height += border * 2;
+				width += buffer * 2;
+				height += buffer * 2;
 
-				left -= border;
-				top += border;
+				left -= buffer;
+				top += buffer;
 
 				var cx = cursorX;
 				var cy = cursorY;
@@ -321,12 +353,12 @@ namespace OpenGLES20Example
 
 			GL.Uniform1 (gammaUniform, (float) (gamma * 1.4142f / fontSize));
 
-			var fromBuffer = (float) (48.0f / 256);
+			var fromBuffer = minBorder;
 			GL.Uniform4 (colorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 			GL.Uniform1 (bufferUniform, fromBuffer);
 			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
 
-			var toBuffer = (float) (192.0f / 256);
+			var toBuffer = border;
 			GL.Uniform4 (colorUniform, 0.0f, 0.0f, 0.0f, 1.0f);
 			GL.Uniform1 (bufferUniform, toBuffer);
 			GL.DrawArrays (BeginMode.Triangles, 0, vertices.Length);
