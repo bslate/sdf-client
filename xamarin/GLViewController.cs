@@ -21,7 +21,7 @@ namespace SDFExample
 
 	public class GLViewController : UIViewController
 	{
-		string sampleText = "SignedDistanceFieldDemoForZotebook&ZoteLib";
+		string sampleText = "AaBbCcDe1234567890~`!@#$%^&*()_=+[{]};:'\"/?.>,<`~";
 		string sdfMapDir = "tradegothic-ttf.sdf";
 
 		string shader = "SDFShader";
