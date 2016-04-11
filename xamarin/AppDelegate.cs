@@ -4,7 +4,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
-namespace OpenGLES20Example
+namespace SDFExample
 {
 	[Register ("AppDelegate")]
 	public partial class AppDelegate : UIApplicationDelegate

@@ -9,7 +9,7 @@ using System;
 using System.CodeDom.Compiler;
 using UIKit;
 
-namespace OpenGLES20Example
+namespace SDFExample
 {
 	[Register ("FontSettingsViewController")]
 	partial class FontSettingsViewController

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -8,9 +8,8 @@
     <ProjectGuid>{850F3504-CFDB-4D3F-B9F8-2A7B1D451C36}</ProjectGuid>
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>OpenGLES2Example</RootNamespace>
+    <RootNamespace>SDFExample</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>OpenGLES2Example</AssemblyName>
     <TargetFrameworkIdentifier>Xamarin.iOS</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v1.0</TargetFrameworkVersion>
   </PropertyGroup>
@@ -26,6 +25,7 @@
     <MtouchDebug>true</MtouchDebug>
     <MtouchArch>i386</MtouchArch>
     <MtouchSdkVersion>9.3</MtouchSdkVersion>
+    <AssemblyName>SDFExample</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <Optimize>true</Optimize>
@@ -35,6 +35,7 @@
     <ConsolePause>false</ConsolePause>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>i386</MtouchArch>
+    <AssemblyName>SDFExample</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,6 +48,7 @@
     <MtouchDebug>true</MtouchDebug>
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchArch>ARMv7</MtouchArch>
+    <AssemblyName>SDFExample</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <Optimize>true</Optimize>
@@ -56,6 +58,7 @@
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <AssemblyName>SDFExample</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhone' ">
     <Optimize>true</Optimize>
@@ -67,6 +70,7 @@
     <ConsolePause>false</ConsolePause>
     <CodesignProvision>Automatic:AdHoc</CodesignProvision>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <AssemblyName>SDFExample</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
     <Optimize>true</Optimize>
@@ -77,6 +81,7 @@
     <CodesignKey>iPhone Distribution</CodesignKey>
     <CodesignProvision>Automatic:AppStore</CodesignProvision>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <AssemblyName>SDFExample</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -117,6 +122,8 @@
     <BundleResource Include="Resources\gillsans-ttf.sdf\texture0.png" />
     <BundleResource Include="Resources\verdana-ttf.sdf\metrics.json" />
     <BundleResource Include="Resources\verdana-ttf.sdf\texture0.png" />
+    <BundleResource Include="Resources\tradegothic-ttf.sdf\metrics.json" />
+    <BundleResource Include="Resources\tradegothic-ttf.sdf\texture0.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>

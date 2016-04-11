@@ -6,7 +6,7 @@ using OpenTK.Graphics.ES20;
 using CoreAnimation;
 using ObjCRuntime;
 
-namespace OpenGLES20Example
+namespace SDFExample
 {
 	public class GLView : UIView
 	{

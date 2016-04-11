@@ -5,7 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenGLES20Example
+namespace SDFExample
 {
 	public class GLProgram
 	{

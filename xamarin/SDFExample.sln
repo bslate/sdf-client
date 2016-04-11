@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenGLES20Example", "OpenGLES20Example.csproj", "{850F3504-CFDB-4D3F-B9F8-2A7B1D451C36}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDFExample", "SDFExample.csproj", "{850F3504-CFDB-4D3F-B9F8-2A7B1D451C36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

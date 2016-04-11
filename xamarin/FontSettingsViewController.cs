@@ -2,7 +2,7 @@
 using UIKit;
 using Foundation;
 
-namespace OpenGLES20Example
+namespace SDFExample
 {
 	public partial class FontSettingsViewController : UIViewController
 	{

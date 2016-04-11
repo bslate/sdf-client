@@ -1,14 +1,14 @@
 using System;
-using OpenTK;
-using UIKit;
-using OpenTK.Graphics.ES20;
-using CoreGraphics;
-using Foundation;
 using System.Collections.Generic;
 using System.IO;
+using CoreGraphics;
+using Foundation;
 using Newtonsoft.Json;
+using OpenTK;
+using OpenTK.Graphics.ES20;
+using UIKit;
 
-namespace OpenGLES20Example
+namespace SDFExample
 {
 	public class FontMetrics
 	{
@@ -21,8 +21,8 @@ namespace OpenGLES20Example
 
 	public class GLViewController : UIViewController
 	{
-		string sampleText = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUu";
-		string sdfFile = "verdana-ttf.sdf";
+		string sampleText = "SignedDistanceFieldDemoForZotebook&ZoteLib";
+		string sdfMapDir = "tradegothic-ttf.sdf";
 
 		string shader = "SDFShader";
 
@@ -48,15 +48,15 @@ namespace OpenGLES20Example
 
 		GLProgram program;
 
-		int posAttribute; // a_pos
-		int texcoordAttribute; // a_texcoord
-		int matrixUniform; // u_matrix
-		int textureUniform; // u_texture
-		int texsizeUniform; // u_texsize
-		int colorUniform; // u_color
-		int bufferUniform; // u_buffer
-		int gammaUniform; // u_gamma
-		int debugUniform; // u_debug
+		int posAttribute;
+		int texcoordAttribute;
+		int matrixUniform;
+		int textureUniform;
+		int texsizeUniform;
+		int colorUniform;
+		int bufferUniform;
+		int gammaUniform;
+		int debugUniform;
 
 		nfloat viewWidth;
 		nfloat viewHeight;
@@ -154,8 +154,8 @@ namespace OpenGLES20Example
 			program.Use ();
 
 			var SDFFileContents = new {
-				metrics = Path.Combine (sdfFile, "metrics.json"),
-				texture0 = Path.Combine (sdfFile, "texture0.png")
+				metrics = Path.Combine (sdfMapDir, "metrics.json"),
+				texture0 = Path.Combine (sdfMapDir, "texture0.png")
 			};
 
 			if (!createFontMetrics (SDFFileContents.metrics))
@@ -234,22 +234,22 @@ namespace OpenGLES20Example
 
 			GL.Uniform2 (texsizeUniform, (float) textureWidth, (float) textureHeight);
 
-			CGColorSpace colorSpace = CGColorSpace.CreateDeviceGray ();
 			byte [] imageData = new byte[textureWidth * textureHeight * 1];
-			CGContext context = new CGBitmapContext  (imageData, textureWidth, textureHeight, 8, 1 * textureWidth, colorSpace,
-				CGImageAlphaInfo.None);
 
-			context.TranslateCTM (0, textureHeight);
-			context.ScaleCTM (1, -1);
-			colorSpace.Dispose ();
-			context.ClearRect (new CGRect (0, 0, textureWidth, textureHeight));
-			context.DrawImage (new CGRect (0, 0, textureWidth, textureHeight), image.CGImage);
+			using (CGColorSpace colorSpace = CGColorSpace.CreateDeviceGray ())
+			using (CGContext context = new CGBitmapContext  (imageData, textureWidth, 
+				textureHeight, 8, 1 * textureWidth, colorSpace, CGImageAlphaInfo.None))
+			{
+				context.TranslateCTM(0, textureHeight);
+				context.ScaleCTM(1, -1);
+				context.ClearRect(new CGRect(0, 0, textureWidth, textureHeight));
+				context.DrawImage(new CGRect(0, 0, textureWidth, textureHeight), image.CGImage);
 
-			GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-			GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-			GL.TexImage2D (TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, (int) textureWidth, (int) textureHeight, 0, PixelFormat.Luminance, PixelType.UnsignedByte, imageData);
-
-			context.Dispose ();
+				GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+				GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Luminance, (int) textureWidth, 
+					(int) textureHeight, 0, PixelFormat.Luminance, PixelType.UnsignedByte, imageData);
+			}
 
 			return true;
 		}
