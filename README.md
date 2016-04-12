@@ -4,6 +4,6 @@ This project shows how to use signed distance fields (SDFs) to use text in OpenG
 
 This project expects an SDF texture with a JSON descriptor. Refer to the [`sdf-cartographer`](https://github.com/zotebook/sdf-cartographer) project for tooling to convert TTF and OTF fonts into the format this example can use.
 
-![Screenshot](https://raw.githubusercontent.com/zotebook/sdf-client/master/xamarin/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/zotebook/sdf-client/master/src/screenshot.png)
 
 This project is based on [Mapbox's signed distance field shader](https://www.mapbox.com/blog/text-signed-distance-fields/).
